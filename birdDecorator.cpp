@@ -1,4 +1,5 @@
 #include "birdDecorator.h"
+#include <cassert>
 
 #ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
@@ -69,64 +70,83 @@ Standard::Standard(double radius, double speed, int points) : Bird()
 }
 
 /******************************************************************/
-/* FLOATER constructor                                            */
+/* VARIATION constructor                                          */
 /******************************************************************/
-Floater::Floater(double radius, double speed, int points) : Bird()
+Variation::Variation(Bird* bird) : Bird()
 {
-   // floaters start on the lower part of the screen because they go up with time
-   pt.setY(randomFloat(dimensions.getY() * 0.01, dimensions.getY() * 0.5));
+   pt.setY(bird->getPosition().getY());
    pt.setX(0.0);
 
    // set the velocity
-   v.setDx(randomFloat(speed - 0.5, speed + 0.5));
-   v.setDy(randomFloat(0.0, speed / 3.0));
+   v.setDx(bird->getVelocity().getDx());
+   v.setDy(bird->getVelocity().getDy());
 
    // set the points value
-   this->points = points;
+   this->points = bird->getPoints();
 
    // set the size
-   this->radius = radius;
+   this->radius = bird->getRadius();
 }
 
-/******************************************************************/
-/* SINKER constructor                                             */
-/******************************************************************/
-Sinker::Sinker(double radius, double speed, int points) : Bird()
-{
-   // sinkers start on the upper part of the screen because they go down with time
-   pt.setY(randomFloat(dimensions.getY() * 0.50, dimensions.getY() * 0.95));
-   pt.setX(0.0);
+// /******************************************************************/
+// /* FLOATER constructor                                            */
+// /******************************************************************/
+// Floater::Floater(Bird* bird) : Variation()
+// {
+//    // floaters start on the lower part of the screen because they go up with time
+//    pt.setY(randomFloat(dimensions.getY() * 0.01, dimensions.getY() * 0.5));
+//    pt.setX(0.0);
 
-   // set the velocity
-   v.setDx(randomFloat(speed - 0.5, speed + 0.5));
-   v.setDy(randomFloat(-speed / 3.0, 0.0));
+//    // set the velocity
+//    v.setDx(randomFloat(speed - 0.5, speed + 0.5));
+//    v.setDy(randomFloat(0.0, speed / 3.0));
 
-   // set the points value
-   this->points = points;
+//    // set the points value
+//    this->points = bird->getPoints();
 
-   // set the size
-   this->radius = radius;
-}
+//    // set the size
+//    this->radius = bird->getRadius();
+// }
 
-/******************************************************************/
-/* CRAZY constructor                                              */
-/******************************************************************/
-Crazy::Crazy(double radius, double speed, int points) : Bird()
-{
-   // crazy birds start in the middle and can go any which way
-   pt.setY(randomFloat(dimensions.getY() * 0.25, dimensions.getY() * 0.75));
-   pt.setX(0.0);
+// /******************************************************************/
+// /* SINKER constructor                                             */
+// /******************************************************************/
+// Sinker::Sinker(Bird* bird) : Variation()
+// {
+//    // sinkers start on the upper part of the screen because they go down with time
+//    pt.setY(randomFloat(dimensions.getY() * 0.50, dimensions.getY() * 0.95));
+//    pt.setX(0.0);
 
-   // set the velocity
-   v.setDx(randomFloat(speed - 0.5, speed + 0.5));
-   v.setDy(randomFloat(-speed / 5.0, speed / 5.0));
+//    // set the velocity
+//    v.setDx(randomFloat(speed - 0.5, speed + 0.5));
+//    v.setDy(randomFloat(-speed / 3.0, 0.0));
 
-   // set the points value
-   this->points = points;
+//    // set the points value
+//    this->points = bird->getPoints();
 
-   // set the size
-   this->radius = radius;
-}
+//    // set the size
+//    this->radius = bird->getRadius();
+// }
+
+// /******************************************************************/
+// /* CRAZY constructor                                              */
+// /******************************************************************/
+// Crazy::Crazy(Bird* bird) : Variation()
+// {
+//    // crazy birds start in the middle and can go any which way
+//    pt.setY(randomFloat(dimensions.getY() * 0.25, dimensions.getY() * 0.75));
+//    pt.setX(0.0);
+
+//    // set the velocity
+//    v.setDx(randomFloat(speed - 0.5, speed + 0.5));
+//    v.setDy(randomFloat(-speed / 5.0, speed / 5.0));
+
+//    // set the points value
+//    this->points = bird->getPoints();
+
+//    // set the size
+//    this->radius = bird->getRadius();
+// }
 
 
 
@@ -140,8 +160,8 @@ Crazy::Crazy(double radius, double speed, int points) : Bird()
  * DRAW Disk
  * Draw a filled circule at [center] with size [radius]
  *************************************************************************/
-void drawDisk(const Point &center, double radius,
-              double red, double green, double blue)
+void drawDisk(const Point& center, double radius,
+   double red, double green, double blue)
 {
    assert(radius > 1.0);
    const double increment = M_PI / radius; // bigger the circle, the more increments
@@ -158,8 +178,8 @@ void drawDisk(const Point &center, double radius,
 
    // go around the circle
    for (double radians = increment;
-        radians <= M_PI * 2.0 + .5;
-        radians += increment)
+      radians <= M_PI * 2.0 + .5;
+      radians += increment)
    {
       pt2.setX(center.getX() + (radius * cos(radians)));
       pt2.setY(center.getY() + (radius * sin(radians)));
@@ -194,11 +214,13 @@ void Standard::draw()
  *********************************************/
 void Floater::draw()
 {
-   if (!isDead())
-   {
-      drawDisk(pt, radius - 0.0, 0.0, 0.0, 1.0); // blue outline
-      drawDisk(pt, radius - 4.0, 1.0, 1.0, 1.0); // white center
-   }
+   baseBird->draw();
+
+   // if (!isDead())
+   // {
+   //    drawDisk(pt, radius - 0.0, 0.0, 0.0, 1.0); // blue outline
+   //    drawDisk(pt, radius - 4.0, 1.0, 1.0, 1.0); // white center
+   // }
 }
 
 /*********************************************
@@ -323,3 +345,7 @@ void Sinker::advance()
       points *= -1; // points go negative when it is missed!
    }
 }
+
+// initialize and update values
+// Alternative1 - Floater(Bird *bird) : Variation(bird) {}
+// Alternative2 - Floater(Bird *bird) : Variation(bird), radius(30.0), speed(5.0), points(15) {}
