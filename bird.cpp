@@ -216,10 +216,10 @@ void Crazy::advance()
    }
 }
 
-/*********************************************
- * SINKER ADVANCE
- * How the sinker bird moves, no drag but gravity
- *********************************************/
+/****************************************************/
+/* SINKER ADVANCE                                   */
+/* How the sinker bird moves, no drag but gravity   */
+/****************************************************/
 void Sinker::advance()
 {
    // gravity

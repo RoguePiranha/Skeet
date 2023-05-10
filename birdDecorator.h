@@ -1,58 +1,6 @@
 #pragma once
 #include "point.h"
 
-class Standard : public Bird
-{
-protected:
-    Point dimensions;
-    Point pt;
-    Velocity v;
-    double radius;
-    bool dead;
-    int points;
-
-public:
-    virtual void draw();
-    virtual void advance();
-}
-
-class Variation : public Bird
-{
-protected:
-    Bird *baseBird;
-
-public:
-    Variation(Bird *bird) : baseBird(bird) {}
-
-private:
-    void draw();
-    void advance();
-};
-
-class Floater : public Bird
-{
-    Floater(Bird *bird) : Variation(bird) {}
-
-    void draw();
-    void advance();
-};
-
-class Crazy : public Bird
-{
-    Crazy(Bird *bird) : Variation(bird) {}
-
-    void draw();
-    void advance();
-};
-
-class Sinker : public Bird
-{
-    Sinker(Bird *bird) : Variation(bird) {}
-
-    void draw();
-    void advance();
-};
-
 /**********************
  * BIRD
  * Everything that can be shot
@@ -90,4 +38,70 @@ public:
     // special functions
     virtual void draw() = 0;
     virtual void advance() = 0;
+};
+
+class Standard : public Bird
+{
+protected:
+    Point dimensions;
+    Point pt;
+    Velocity v;
+    double radius;
+    bool dead;
+    int points;
+
+ public:
+    Standard(double radius = 25.0, double speed = 5.0, int points = 10);
+    void draw();
+    void advance();
+};
+
+class Variation : public Bird
+{
+protected:
+    Bird *baseBird;
+
+public:
+
+    Variation(Bird *bird) : baseBird(bird) {}
+
+    void draw();
+    void advance();
+};
+
+class Floater : public Variation
+{
+protected:
+    double radius;
+    double speed;
+    int points;
+
+public:
+    // initialize and update values
+        // Alternative1 - Floater(Bird *bird) : Variation(bird) {}
+        // Alternative2 - Floater(Bird *bird) : Variation(bird), radius(30.0), speed(5.0), points(15) {}
+    Floater(Bird *bird) : radius(30.0), speed(5.0), points(15) {}
+
+    void draw();
+    void advance();
+};
+
+class Crazy : public Variation
+{
+public:
+    // initialize and update values
+    Crazy(Bird *bird) : radius(30.0), speed(4.5), points(30) {}
+
+    void draw();
+    void advance();
+};
+
+class Sinker : public Variation
+{
+public:
+    // initialize and update values
+    Sinker(Bird *bird) : radius(30.0), speed(4.5), points(20) {}
+
+    void draw();
+    void advance();
 };
