@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.qmd": "quarto",
+        "algorithm": "cpp",
+        "list": "cpp",
+        "memory": "cpp",
+        "xlocnum": "cpp",
+        "xutility": "cpp"
+    }
+}
