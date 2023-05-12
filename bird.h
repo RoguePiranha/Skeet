@@ -3,6 +3,8 @@
  *    Bird : Everything that can be shot
  * Author:
  *    Br. Helfrich
+ * Co-Authors:
+ *    Michael Darling, Andrew Swayze
  * Summary:
  *    Stuff that moves across the screen to be shot
  ************************************************************************/
