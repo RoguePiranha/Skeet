@@ -72,10 +72,10 @@ double randomFloat(double min, double max)
  ******************************************************************/
 Standard::Standard(double radius, double speed, int points) : Bird()
 {
+   decorators.push_back(new DragDecorator(0.995));
    decorators.push_back(new InertiaDecorator());
    decorators.push_back(new GravityDecorator(0));
    decorators.push_back(new BouyancyDecorator(0));
-   decorators.push_back(new DragDecorator(0.995));
    decorators.push_back(new TurnDecorator(0, false));
    // set the position: standard birds start from the middle
    pt.setY(randomFloat(dimensions.getY() * 0.25, dimensions.getY() * 0.75));
@@ -97,10 +97,10 @@ Standard::Standard(double radius, double speed, int points) : Bird()
  ******************************************************************/
 Floater::Floater(double radius, double speed, int points) : Bird()
 {
+   decorators.push_back(new DragDecorator(0.99));
    decorators.push_back(new InertiaDecorator());
    decorators.push_back(new GravityDecorator(0));
    decorators.push_back(new BouyancyDecorator(0.05));
-   decorators.push_back(new DragDecorator(0.99));
    decorators.push_back(new TurnDecorator(0, false));
    // floaters start on the lower part of the screen because they go up with time
    pt.setY(randomFloat(dimensions.getY() * 0.01, dimensions.getY() * 0.5));
@@ -122,10 +122,10 @@ Floater::Floater(double radius, double speed, int points) : Bird()
  ******************************************************************/
 Sinker::Sinker(double radius, double speed, int points) : Bird()
 {
+   decorators.push_back(new DragDecorator(0));
    decorators.push_back(new InertiaDecorator());
    decorators.push_back(new GravityDecorator(0.07));
    decorators.push_back(new BouyancyDecorator(0));
-   decorators.push_back(new DragDecorator(0));
    decorators.push_back(new TurnDecorator(0, false));
    // sinkers start on the upper part of the screen because they go down with time
    pt.setY(randomFloat(dimensions.getY() * 0.50, dimensions.getY() * 0.95));
@@ -147,10 +147,10 @@ Sinker::Sinker(double radius, double speed, int points) : Bird()
  ******************************************************************/
 Crazy::Crazy(double radius, double speed, int points) : Bird()
 {
+   decorators.push_back(new DragDecorator(0));
    decorators.push_back(new InertiaDecorator());
    decorators.push_back(new GravityDecorator(0));
    decorators.push_back(new BouyancyDecorator(0));
-   decorators.push_back(new DragDecorator(0));
    decorators.push_back(new TurnDecorator(15, true));
    // crazy birds start in the middle and can go any which way
    pt.setY(randomFloat(dimensions.getY() * 0.25, dimensions.getY() * 0.75));
@@ -187,7 +187,6 @@ void Bird::advance()
 
 void InertiaDecorator::apply(Bird* bird)
 {
-   //bird->pt.add(v);
    Point current = bird->getPosition();
    current.add(bird->getVelocity());
    bird->setPosition(current);
@@ -196,7 +195,6 @@ void InertiaDecorator::apply(Bird* bird)
 
 void GravityDecorator::apply(Bird* bird)
 {
-   // bird->v.addDy(-gravity);
    Velocity current = bird->getVelocity();
    current.addDy(-gravity);
    bird->setVelocity(current);
@@ -204,7 +202,6 @@ void GravityDecorator::apply(Bird* bird)
 
 void DragDecorator::apply(Bird* bird)
 {
-   // bird->v *= drag;
    Velocity current = bird->getVelocity();
    current* drag;
    bird->setVelocity(current);
@@ -212,7 +209,6 @@ void DragDecorator::apply(Bird* bird)
 
 void BouyancyDecorator::apply(Bird* bird)
 {
-   // bird->v.addDy(bouyancy);
    Velocity current = bird->getVelocity();
    current.addDy(bouyancy);
    bird->setVelocity(current);
