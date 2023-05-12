@@ -57,8 +57,7 @@ public:
 
    // special functions
    virtual void draw() = 0;
-   void advance()
-   ;
+   void advance();
 };
 
 /*********************************************
