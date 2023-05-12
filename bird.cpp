@@ -12,25 +12,26 @@
 
 #ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
-#include <openGL/gl.h> // Main OpenGL library
-#include <GLUT/glut.h> // Second OpenGL library
+#include <openGL/gl.h>    // Main OpenGL library
+#include <GLUT/glut.h>    // Second OpenGL library
 #define GLUT_TEXT GLUT_BITMAP_HELVETICA_18
 #endif // __APPLE__
 
 #ifdef __linux__
-#include <GL/gl.h>   // Main OpenGL library
-#include <GL/glut.h> // Second OpenGL library
+#include <GL/gl.h>        // Main OpenGL library
+#include <GL/glut.h>      // Second OpenGL library
 #define GLUT_TEXT GLUT_BITMAP_HELVETICA_12
 #endif // __linux__
 
 #ifdef _WIN32
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glut.h> // OpenGL library we copied
+#include <GL/glut.h>         // OpenGL library we copied 
 #define _USE_MATH_DEFINES
 #include <math.h>
 #define GLUT_TEXT GLUT_BITMAP_HELVETICA_12
 #endif // _WIN32
+
 
 /***************************************************************/
 /***************************************************************/
@@ -38,10 +39,11 @@
 /***************************************************************/
 /***************************************************************/
 
-/****************************************************************/
-/* RANDOM                                                       */
-/* These functions generate a random number.                    */
-/****************************************************************/
+
+/******************************************************************
+ * RANDOM
+ * These functions generate a random number.
+ ****************************************************************/
 int randomInt(int min, int max)
 {
    assert(min < max);
@@ -59,15 +61,20 @@ double randomFloat(double min, double max)
 
 /***************************************************************/
 /***************************************************************/
-/*                         CONSTRUCTORS                        */
+/*                         CONSTRUCTORS                         */
 /***************************************************************/
 /***************************************************************/
 
-/******************************************************************/
-/* STANDARD constructor                                           */
-/******************************************************************/
+/******************************************************************
+ * STANDARD constructor
+ ******************************************************************/
 Standard::Standard(double radius, double speed, int points) : Bird()
 {
+   decorators.push_back(new InertiaDecorator());
+   decorators.push_back(new GravityDecorator(0));
+   decorators.push_back(new BouyancyDecorator(0));
+   decorators.push_back(new DragDecorator(0.995));
+   decorators.push_back(new TurnDecorator(0, false));
    // set the position: standard birds start from the middle
    pt.setY(randomFloat(dimensions.getY() * 0.25, dimensions.getY() * 0.75));
    pt.setX(0.0);
@@ -83,11 +90,16 @@ Standard::Standard(double radius, double speed, int points) : Bird()
    this->radius = radius;
 }
 
-/******************************************************************/
-/* FLOATER constructor                                            */
-/******************************************************************/
+/******************************************************************
+ * FLOATER constructor
+ ******************************************************************/
 Floater::Floater(double radius, double speed, int points) : Bird()
 {
+   decorators.push_back(new InertiaDecorator());
+   decorators.push_back(new GravityDecorator(0));
+   decorators.push_back(new BouyancyDecorator(0.05));
+   decorators.push_back(new DragDecorator(0.99));
+   decorators.push_back(new TurnDecorator(0, false));
    // floaters start on the lower part of the screen because they go up with time
    pt.setY(randomFloat(dimensions.getY() * 0.01, dimensions.getY() * 0.5));
    pt.setX(0.0);
@@ -103,11 +115,16 @@ Floater::Floater(double radius, double speed, int points) : Bird()
    this->radius = radius;
 }
 
-/******************************************************************/
-/* SINKER constructor                                             */
-/******************************************************************/
+/******************************************************************
+ * SINKER constructor
+ ******************************************************************/
 Sinker::Sinker(double radius, double speed, int points) : Bird()
 {
+   decorators.push_back(new InertiaDecorator());
+   decorators.push_back(new GravityDecorator(0.07));
+   decorators.push_back(new BouyancyDecorator(0));
+   decorators.push_back(new DragDecorator(0));
+   decorators.push_back(new TurnDecorator(0, false));
    // sinkers start on the upper part of the screen because they go down with time
    pt.setY(randomFloat(dimensions.getY() * 0.50, dimensions.getY() * 0.95));
    pt.setX(0.0);
@@ -123,11 +140,16 @@ Sinker::Sinker(double radius, double speed, int points) : Bird()
    this->radius = radius;
 }
 
-/******************************************************************/
-/* CRAZY constructor                                              */
-/******************************************************************/
+/******************************************************************
+ * CRAZY constructor
+ ******************************************************************/
 Crazy::Crazy(double radius, double speed, int points) : Bird()
 {
+   decorators.push_back(new InertiaDecorator());
+   decorators.push_back(new GravityDecorator(0));
+   decorators.push_back(new BouyancyDecorator(0));
+   decorators.push_back(new DragDecorator(0));
+   decorators.push_back(new TurnDecorator(15, true));
    // crazy birds start in the middle and can go any which way
    pt.setY(randomFloat(dimensions.getY() * 0.25, dimensions.getY() * 0.75));
    pt.setX(0.0);
@@ -143,25 +165,17 @@ Crazy::Crazy(double radius, double speed, int points) : Bird()
    this->radius = radius;
 }
 
-/***************************************************************/
-/***************************************************************/
-/*                            ADVANCE                          */
-/***************************************************************/
-/***************************************************************/
-
-/*********************************************
- * STANDARD ADVANCE
- * How the standard bird moves - inertia and drag
- *********************************************/
-void Standard::advance()
+/******************************************************************
+* ADVANCE
+* Adds the decorators to the bird
+******************************************************************/
+void Bird::advance()
 {
-   // small amount of drag
-   v *= 0.995;
+   for (AdvanceDecorator* decorator : decorators)
+   {
+      decorator->apply(this);
+   }
 
-   // inertia
-   pt.add(v);
-
-   // out of bounds checker
    if (isOutOfBounds())
    {
       kill();
@@ -169,72 +183,53 @@ void Standard::advance()
    }
 }
 
-/***************************************************************/
-/* FLOATER ADVANCE                                             */
-/* How the floating bird moves: strong drag and anti-gravity   */
-/***************************************************************/
-void Floater::advance()
+void InertiaDecorator::apply(Bird* bird)
 {
-   // large amount of drag
-   v *= 0.990;
+   //bird->pt.add(v);
+   Point current = bird->getPosition();
+   current.add(bird->getVelocity());
+   bird->setPosition(current);
 
-   // inertia
-   pt.add(v);
-
-   // anti-gravity
-   v.addDy(0.05);
-
-   // out of bounds checker
-   if (isOutOfBounds())
-   {
-      kill();
-      points *= -1; // points go negative when it is missed!
-   }
 }
 
-/***********************************************************************/
-/* CRAZY ADVANCE                                                       */
-/* How the crazy bird moves, every half a second it changes direciton  */
-/***********************************************************************/
-void Crazy::advance()
+void GravityDecorator::apply(Bird* bird)
 {
-   // erratic turns eery half a second or so
-   if (randomInt(0, 15) == 0)
-   {
-      v.addDy(randomFloat(-1.5, 1.5));
-      v.addDx(randomFloat(-1.5, 1.5));
-   }
-
-   // inertia
-   pt.add(v);
-
-   // out of bounds checker
-   if (isOutOfBounds())
-   {
-      kill();
-      points *= -1; // points go negative when it is missed!
-   }
+   // bird->v.addDy(-gravity);
+   Velocity current = bird->getVelocity();
+   current.addDy(-gravity);
+   bird->setVelocity(current);
 }
 
-/****************************************************/
-/* SINKER ADVANCE                                   */
-/* How the sinker bird moves, no drag but gravity   */
-/****************************************************/
-void Sinker::advance()
+void DragDecorator::apply(Bird* bird)
 {
-   // gravity
-   v.addDy(-0.07);
-
-   // inertia
-   pt.add(v);
-
-   // out of bounds checker
-   if (isOutOfBounds())
-   {
-      kill();
-      points *= -1; // points go negative when it is missed!
-   }
+   // bird->v *= drag;
+   Velocity current = bird->getVelocity();
+   current* drag;
+   bird->setVelocity(current);
 }
+
+void BouyancyDecorator::apply(Bird* bird)
+{
+   // bird->v.addDy(bouyancy);
+   Velocity current = bird->getVelocity();
+   current.addDy(bouyancy);
+   bird->setVelocity(current);
+}
+
+void TurnDecorator::apply(Bird* bird)
+{
+   Velocity current = bird->getVelocity();
+   if (turnEnabled)
+   {
+      if (randomInt(0, turnQuantity) == 0)
+      {
+         current.addDy(randomFloat(-1.5, 1.5));
+         current.addDx(randomFloat(-1.5, 1.5));
+      }
+   }
+   bird->setVelocity(current);
+}
+
 
 /***************************************************************/
 /***************************************************************/
@@ -246,11 +241,11 @@ void Sinker::advance()
  * DRAW Disk
  * Draw a filled circule at [center] with size [radius]
  *************************************************************************/
-void drawDisk(const Point &center, double radius,
+void drawDisk(const Point& center, double radius,
               double red, double green, double blue)
 {
    assert(radius > 1.0);
-   const double increment = M_PI / radius; // bigger the circle, the more increments
+   const double increment = M_PI / radius;  // bigger the circle, the more increments
 
    // begin drawing
    glBegin(GL_TRIANGLES);
@@ -264,8 +259,8 @@ void drawDisk(const Point &center, double radius,
 
    // go around the circle
    for (double radians = increment;
-        radians <= M_PI * 2.0 + .5;
-        radians += increment)
+      radians <= M_PI * 2.0 + .5;
+      radians += increment)
    {
       pt2.setX(center.getX() + (radius * cos(radians)));
       pt2.setY(center.getY() + (radius * sin(radians)));
