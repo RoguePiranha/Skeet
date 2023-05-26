@@ -49,6 +49,11 @@ public:
    void setPosition(Point position)     { this->pt = position; }
    void setVelocity(Velocity velocity) { this->v = velocity; }
 
+   // observer functions
+   void subscribe(Observer *observer) { observers.push_back(observer); };
+   void unsubscribe(Observer *observer);
+   void notify();
+
    bool isOutOfBounds() const
    {
       return (pt.getX() < -radius || pt.getX() >= dimensions.getX() + radius ||
@@ -58,6 +63,10 @@ public:
    // special functions
    virtual void draw() = 0;
    void advance();
+
+private:
+   std::vector<Observer *> observers;
+   
 };
 
 /*********************************************

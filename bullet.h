@@ -40,11 +40,19 @@ public:
    double getRadius()      const { return radius; }
    int getValue()          const { return value;  }
 
+   // observer functions
+   void subscribe(Observer *observer) { observers.push_back(observer); };
+   void unsubscribe(Observer *observer);
+   void notify();
+
    // special functions
    virtual void death(std::list<Bullet *> & bullets) {}
    virtual void output() = 0;
    virtual void input(bool isUp, bool isDown, bool isB) {}
    virtual void move(std::list<Effect*> &effects);
+
+private:
+   std::vector<Observer *> observers;
 
 protected:
    bool isOutOfBounds() const

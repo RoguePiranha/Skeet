@@ -50,6 +50,28 @@ Bullet::Bullet(double angle, double speed, double radius, int value) :
 }
 
 /*********************************************
+ * BULLET OBSERVER PATTERN
+ * Attach an observer to the bullet
+ *********************************************/
+void Bullet::unsubscribe(Observer *observer)
+{
+   std::list<Observer *>::iterator it;
+   for (it = observers.begin(); it != observers.end(); ++it)
+      if (*it == observer)
+      {
+         observers.erase(it);
+         return;
+      }
+}
+
+void Bullet::notify()
+{
+   std::list<Observer *>::iterator it;
+   for (it = observers.begin(); it != observers.end(); ++it)
+      (*it)->update();
+}
+
+/*********************************************
  * BOMB DEATH
  * Bombs have a tendency to explode!
  *********************************************/
@@ -69,7 +91,7 @@ void Bomb::death(std::list<Bullet*>& bullets)
  * BULLET MOVE
  * Move the bullet along by one time period
  *********************************************/
-void Bullet::move(std::list<Effect*> & effects)
+void Bullet::move(std::list<Effect *> &effects)
 {
    // inertia
    pt.add(v);
