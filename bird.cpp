@@ -61,6 +61,28 @@ double randomFloat(double min, double max)
    return num;
 }
 
+/******************************************************************
+ * OBSERVER PATTERN
+ * Attach an observer to the bird
+ ******************************************************************/
+void Bird::unsubscribe(Observer *observer)
+{
+   std::list<Observer *>::iterator it;
+   for (it = observers.begin(); it != observers.end(); ++it)
+      if (*it == observer)
+      {
+         observers.erase(it);
+         return;
+      }
+}
+
+void Bird::notify()
+{
+   std::list<Observer *>::iterator it;
+   for (it = observers.begin(); it != observers.end(); ++it)
+      (*it)->update();
+}
+
 /***************************************************************/
 /***************************************************************/
 /*                         CONSTRUCTORS                         */
